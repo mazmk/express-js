@@ -44,13 +44,13 @@ app.post("/", (req, res) => {
     const data = req.body.value;
     console.log("data", data);
     createUser("posts", "users", data)
-      .then((val) => res.json(val))
-      .catch((err) => res.send(err.message));
+      .then((val) => {
+        res.status(201).send(val);
+      })
+      .catch((err) => res.status(400).send(err.message));
   } catch (errorHeHe) {
-    res.json(errorHeHe);
+    res.status(400).send(errorHeHe);
   }
-
-  //   res.json({ val: "hehe" });skdfjfdjlj
 });
 
 module.exports = app;
