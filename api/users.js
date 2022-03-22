@@ -2,6 +2,7 @@ const app = require("express").Router();
 const url = require("./urls").url;
 const { MongoClient } = require("mongodb");
 const client = new MongoClient(url);
+const { check, validationResult } = require('express-validator');
 
 async function getAll(dbName, colectionName) {
   try {
@@ -13,7 +14,7 @@ async function getAll(dbName, colectionName) {
   } catch (e) {
     throw e;
   } finally {
-    console.log('done querying..................');
+    console.log("done querying..................");
     client.close();
   }
 }
@@ -28,29 +29,38 @@ async function createUser(dbName, colectionName, data) {
   } catch (e) {
     throw e;
   } finally {
-    console.log('done querying..................');
+    console.log("done querying..................");
     client.close();
   }
 }
 
 app.get("/", (req, res) => {
-  getAll("posts", "users")
+  getAll("mazm", "users")
     .then((val) => res.json(val))
     .catch((err) => res.json(err));
 });
 
-app.post("/", (req, res) => {
-  try {
-    const data = req.body.value;
-    console.log("data", data);
-    createUser("posts", "users", data)
-      .then((val) => {
-        res.status(201).send(val);
-      })
-      .catch((err) => res.status(400).send(err.message));
-  } catch (errorHeHe) {
-    res.status(400).send(errorHeHe);
+app.post(
+  "/",
+  check('value').isArray(),
+  
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const data = req.body.value;
+      console.log("data", data);
+      createUser("mazm", "users", data)
+        .then((val) => {
+          res.status(201).send(val);
+        })
+        .catch((err) => res.status(400).send(err.message));
+    } catch (errorHeHe) {
+      res.status(400).send(errorHeHe);
+    }
   }
-});
+);
 
 module.exports = app;
